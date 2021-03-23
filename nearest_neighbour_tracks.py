@@ -13,7 +13,7 @@ top_artists_tracks = "/v1/me/top/{type}"
 search = "/v1/search"
 add_track_to_playlist = "/v1/playlists/{playlist_id}/tracks"
 
-os.environ['SPOTIFY_TOKEN'] = 'BQDTsgOTDtnY2w4ZuNc6rFVczUlnmqWLNU4n0bIG1DIxsICxGGxoXnxX0EQvH48jSKtuakYEkjTYL8cX7Ay_VoFmNy53l0go5gMlKHm-FrGIWGL0m2mxn-5m5df0M5pg7wCFYDe5xfuTP0Q8xF3DV7_PR6OVqmF6IwuyPSwbupo6pdEBPrxiOnm8UWnrVRsxF2B_jyC5mxtOde3AJqrr5kFRQHKDQToO4y53CG5FK4QZ8yuykOw45zhIcoQtaH0mYCoaHhZvdutkdWmTV2DJhzsqZ1nfidiPZ9U3KQ'
+os.environ['SPOTIFY_TOKEN'] = 'BQALAHVQW1O-arREO8xBow98um2pqRTqekhLfl1AQCYpJlsXgYgd6ugcvT3v3bDhK1ySKxZrhDmiviElF-9l583VC-GuadVMO3XQ7KjWBvR6SG3VQybB8hbQ5em5cfoYHR4xDGcRTNY3ypbKs-N4F_Mlp1ubu9yLYnTBOdQEyElF0iCXdKdy_cJQrJahjA_JrBAnKm1UWv7gthLxnsvRZOgVn4OwpSbeTDGG6agGX5F6LKCkRpWPB7PeSK8K06I5ODmzMHwJU4ij8RpEWQ1ZGa10oZPbuEP3hlhs0g'
 access_token = "Bearer " + (os.environ['SPOTIFY_TOKEN'])
 spotify_header = {"Content-Type": "application/json",
                   "Accept": "application/json",
@@ -27,6 +27,7 @@ SP_NAME = "Vimal_PL"
 _playlists = {}
 _tracks = set()
 _geners = set()
+_suggested_tracks=set()
 _likeness_centroid = 0.000
 
 def _get(url):
@@ -174,6 +175,7 @@ def find_nearest_neighbour_tracks(centroid, df2, d=1.000):
     df2['distance'] = round(abs(df2['centroid']-df2['location']),3)
     df3 = df2[df2.distance < d]
     df3['new_id'] = 'spotify:track:' + df3['id']
+    print( df3['distance'].tolist())
     return df3['new_id'].tolist()
 
 
@@ -185,9 +187,11 @@ def publish_tracks(playlist_id, suggested_tracks):
         print(r)
 
     for t in suggested_tracks:
-        __tracks.append(t)
+        if not t in _suggested_tracks:
+            __tracks.append(t)
         if len(__tracks) == 100:
             __publish()
+            _suggested_tracks.update(_tracks)
             __tracks.clear()
     __publish()
 
@@ -195,6 +199,7 @@ if  '__main__' == __name__:
 
     _playlists = get_playlists_from_json(get_user_playlists())
     _tracks = get_track_ids_from_json(get_playlist_tracks(_playlists[FP_NAME]))
+    _suggested_tracks.update(_tracks)
     _likeness_centroid = get_centroid_of_audio_features_from_json(get_audio_analysis(_tracks))
 
     print('User likeness centroid: {0}'.format(_likeness_centroid))
