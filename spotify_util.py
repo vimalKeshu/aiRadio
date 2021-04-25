@@ -7,7 +7,7 @@ cols = ['id','danceability','energy', 'key', 'loudness', 'speechiness', 'acousti
         'liveness','valence', 'tempo', 'time_signature', 'mode']
         
 #FP_NAME = "My_Songs"
-FP_NAME = "Ekc"
+FP_NAME = "My_Songs"
 SP_NAME = "Vimal_PL"
 
 Playlist = namedtuple('Playlist', ['id', 'name', 'total'])
