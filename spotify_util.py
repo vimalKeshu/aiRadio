@@ -6,12 +6,12 @@ from spotify_api import _get, search_tracks_by_gener, get_audio_analysis, add_tr
 cols = ['id','danceability','energy', 'key', 'loudness', 'speechiness', 'acousticness', 'instrumentalness',
         'liveness','valence', 'tempo', 'time_signature', 'mode']
         
-#FP_NAME = "My_Songs"
 FP_NAME = "My_Songs"
+#FP_NAME = "Sid_PL"
 SP_NAME = "Vimal_PL"
 
 Playlist = namedtuple('Playlist', ['id', 'name', 'total'])
-Track = namedtuple('Track', ['id', 'popularity'])
+Track = namedtuple('Track', ['id', 'name', 'popularity'])
 
 def get_playlists_from_json(play_list_json):
     __playlists = {}
@@ -23,7 +23,7 @@ def get_tracks_from_json(track_json):
     __tracks = set()
     for track in track_json['items']:
         if 'track' in track and 'id' in track['track']:
-            __tracks.add(Track(track['track']['id'], track['track']['popularity']))
+            __tracks.add(Track(track['track']['id'], track['track']['name'], track['track']['popularity']))
     return __tracks
 
 def get_user_geners_from_json(top_artists_tracks_json):
@@ -38,7 +38,7 @@ def get_user_gener_tracks_from_json(tracks_by_gener_json):
     __tracks = set()
     if 'tracks' in tracks_by_gener_json and 'items' in tracks_by_gener_json['tracks']:
         for item in tracks_by_gener_json['tracks']['items']:
-            __tracks.add(Track(item['id'], item['popularity']))
+            __tracks.add(Track(item['id'], item['name'], item['popularity']))
     return __tracks
 
 def search_tracks_of_gener(gener_type):
@@ -61,8 +61,7 @@ def search_tracks_of_gener(gener_type):
 
     return __all_tracks
 
-def get_centroid_of_audio_features_from_json(audio_features_json, tracks):
-    df11 = pd.DataFrame(audio_features_json['audio_features'])
+def get_centroid_of_audio_features(df11, tracks):
     df22 = pd.DataFrame(tracks)
     df1 = pd.merge(df11, df22, on="id")
 
@@ -81,6 +80,28 @@ def get_centroid_of_audio_features_from_json(audio_features_json, tracks):
             + df1["popularity"].mean() 
             #+ df1["duration_ms"].mean()
     return round(cp,3)
+
+def get_centroid_of_each_audio_features(df11, tracks):
+    df22 = pd.DataFrame(tracks)
+    df1 = pd.merge(df11, df22, on="id")
+
+    __centroid = {}
+
+    __centroid['danceability'] = df1.danceability.mean()*100
+    __centroid['energy'] = df1.energy.mean()*100
+    __centroid['key'] = df1.key.mean()
+    __centroid['loudness'] = df1.loudness.mean()
+    __centroid['speechiness'] = df1.speechiness.mean()*100
+    __centroid['acousticness'] = df1.acousticness.mean()*100
+    __centroid['instrumentalness'] = df1.instrumentalness.mean()*100
+    __centroid['liveness'] = df1.liveness.mean()*100
+    __centroid['valence'] = df1.valence.mean()*100
+    __centroid['tempo'] = df1.tempo.mean()
+    __centroid['time_signature'] = df1.time_signature.mean()
+    __centroid['mode'] = df1["mode"].mean()*100
+    __centroid['popularity'] = df1.popularity.mean()
+
+    return __centroid
 
 
 def get_audio_analysis_of_all_tracks_as_dataframe(tracks):
@@ -105,7 +126,7 @@ def get_audio_analysis_of_all_tracks_as_dataframe(tracks):
 
     return __df
 
-def find_nearest_neighbour_tracks(centroid, df11, tracks, d=1.000):
+def find_nearest_neighbour_tracks(centroid, df11, tracks, top=None, d=1.000):
     df22 = pd.DataFrame(tracks)
     df2 = pd.merge(df11, df22, on="id")
 
@@ -129,9 +150,41 @@ def find_nearest_neighbour_tracks(centroid, df11, tracks, d=1.000):
     print('Average distance: ', df2['distance'].mean())
     df3 = df2[df2.distance < d]
     df3['new_id'] = 'spotify:track:' + df3['id']
-    print( df3['distance'].tolist())
-    return df3['new_id'].tolist()
+    df4 = df3.sort_values(by=['distance'], ascending=True)
+    #print( df4['distance'].tolist())
+    if top and len(df4) >= top:
+        return df4['new_id'].tolist()[:top]
+    else:
+        return df4['new_id'].tolist()
 
+def find_nearest_neighbour_tracks_per_feature(centroid, df11, tracks, top=None):
+    df22 = pd.DataFrame(tracks)
+    df2 = pd.merge(df11, df22, on="id")
+
+    df2["distance"] = round(( \
+        abs(df2['danceability']*100 - centroid['danceability']) \
+    +   abs(df2['energy']*100 - centroid['energy']) \
+    +   abs(df2['key'] - centroid['energy']) \
+    +   abs(df2['loudness'] - centroid['loudness']) \
+    +   abs(df2['speechiness']*100 - centroid['speechiness']) \
+    +   abs(df2['acousticness']*100 - centroid['acousticness']) \
+    +   abs(df2['instrumentalness']*100 - centroid['instrumentalness']) \
+    +   abs(df2['liveness']*100 - centroid['liveness']) \
+    +   abs(df2['valence']*100 - centroid['valence']) \
+    +   abs(df2['tempo'] - centroid['tempo']) \
+    +   abs(df2['time_signature'] - centroid['time_signature']) \
+    +   abs(df2['mode']*100 - centroid['mode']) \
+    +   abs(df2['popularity'] - centroid['popularity'])), 3)
+
+    print('Average distance: ', df2['distance'].mean())
+
+    df2['new_id'] = 'spotify:track:' + df2['id']
+    df4 = df2.sort_values(by=['distance'], ascending=True)
+    print( df4['distance'].tolist())
+    if top and len(df4) >= top:
+        return df4['new_id'].tolist()[:top]
+    else:
+        return df4['new_id'].tolist()
 
 def publish_tracks(playlist_id, new_tracks, suggested_tracks):
     __tracks = []

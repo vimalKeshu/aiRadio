@@ -36,7 +36,7 @@ def get_audio_analysis(tracks):
 def get_playlist_tracks(playlist_id):
     url = spotify_url + playlist_tracks.format(playlist_id=playlist_id)
     return requests.get(url=url,
-            params={"fields": "items(track(id,popularity,duration_ms)),next"},
+            params={"fields": "items(track(id,name,popularity,duration_ms)),next"},
             headers=spotify_header).json()
 
 def get_user_top_charts(type='artists'):

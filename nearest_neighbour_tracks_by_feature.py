@@ -6,7 +6,7 @@ _tracks = set()
 _tracks_object = {}
 _geners = set()
 _suggested_tracks=set()
-_likeness_centroid = 0.000
+_likeness_centroid_per_feature = {}
 
 
 
@@ -25,15 +25,13 @@ if  '__main__' == __name__:
 
     # find the centroid
     _liked_songs_df = get_audio_analysis_of_all_tracks_as_dataframe(tracks=[t.id for t in _tracks])
-    _likeness_centroid = get_centroid_of_audio_features(_liked_songs_df, tracks=_tracks)
+    _likeness_centroid_per_feature = get_centroid_of_each_audio_features(_liked_songs_df, tracks=_tracks)
 
-    print('User likeness centroid: {0}'.format(_likeness_centroid))
-    if _likeness_centroid == 0.000:
+    print('User likeness centroid: {0}'.format(_likeness_centroid_per_feature))
+    if not _likeness_centroid_per_feature or len(_likeness_centroid_per_feature) == 0:
         print('Error in finding likeness centroid.')
     else:
         top_chart = get_user_top_charts()
-        #print('Top chart:', top_chart)
-        #__dfs = []
         _geners = get_user_geners_from_json(top_chart)
         for gener in _geners:
             search_tracks = search_tracks_of_gener(gener)
@@ -42,13 +40,9 @@ if  '__main__' == __name__:
                 continue
             #print('search_tracks', search_tracks)
             df = get_audio_analysis_of_all_tracks_as_dataframe(tracks=[t.id for t in search_tracks])
-            if len(df) > 0:
-                #__dfs.append(df)
-                print('Suggested the songs for gener, {0}'.format(gener))
-                #finalDf = pd.concat(__dfs)
-                #print(finalDf)
-                results = find_nearest_neighbour_tracks(centroid=_likeness_centroid, df11=df, tracks=search_tracks, top=2)
-                _suggested_tracks = publish_tracks(playlist_id=_playlists[SP_NAME], new_tracks=results, suggested_tracks=_suggested_tracks)
+            print('Suggested the songs for gener, {0}'.format(gener))
+            results = find_nearest_neighbour_tracks_per_feature(centroid=_likeness_centroid_per_feature, df11=df, tracks=search_tracks, top=2)
+            _suggested_tracks = publish_tracks(playlist_id=_playlists[SP_NAME], new_tracks=results, suggested_tracks=_suggested_tracks)
            
 
 
