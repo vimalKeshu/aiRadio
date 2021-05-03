@@ -1,7 +1,7 @@
 import pandas as pd
 from collections import namedtuple
 from spotify_api import _get, search_tracks_by_gener, get_audio_analysis, add_tracks_to_playlist
-
+import math
 
 cols = ['id','danceability','energy', 'key', 'loudness', 'speechiness', 'acousticness', 'instrumentalness',
         'liveness','valence', 'tempo', 'time_signature', 'mode']
@@ -150,41 +150,75 @@ def find_nearest_neighbour_tracks(centroid, df11, tracks, top=None, d=1.000):
     print('Average distance: ', df2['distance'].mean())
     df3 = df2[df2.distance < d]
     df3['new_id'] = 'spotify:track:' + df3['id']
-    df4 = df3.sort_values(by=['distance'], ascending=True)
-    #print( df4['distance'].tolist())
-    if top and len(df4) >= top:
-        return df4['new_id'].tolist()[:top]
+    tracks = __get_tracks_from_dataframe(df3)
+
+    if top and len(tracks) >= top:
+        return tracks[:top]
     else:
-        return df4['new_id'].tolist()
+        return tracks
 
 def find_nearest_neighbour_tracks_per_feature(centroid, df11, tracks, top=None):
     df22 = pd.DataFrame(tracks)
     df2 = pd.merge(df11, df22, on="id")
 
-    df2["distance"] = round(( \
-        abs(df2['danceability']*100 - centroid['danceability']) \
-    +   abs(df2['energy']*100 - centroid['energy']) \
-    +   abs(df2['key'] - centroid['energy']) \
-    +   abs(df2['loudness'] - centroid['loudness']) \
-    +   abs(df2['speechiness']*100 - centroid['speechiness']) \
-    +   abs(df2['acousticness']*100 - centroid['acousticness']) \
-    +   abs(df2['instrumentalness']*100 - centroid['instrumentalness']) \
-    +   abs(df2['liveness']*100 - centroid['liveness']) \
-    +   abs(df2['valence']*100 - centroid['valence']) \
-    +   abs(df2['tempo'] - centroid['tempo']) \
-    +   abs(df2['time_signature'] - centroid['time_signature']) \
-    +   abs(df2['mode']*100 - centroid['mode']) \
-    +   abs(df2['popularity'] - centroid['popularity'])), 3)
+    df2["distance1"] = df2['danceability']*100 - centroid['danceability']
+    df2["distance2"] = df2['energy']*100 - centroid['energy']
+    df2["distance3"] = df2['key'] - centroid['energy']
+    df2["distance4"] = df2['loudness'] - centroid['loudness']
+    df2["distance5"] = df2['speechiness']*100 - centroid['speechiness']
+    df2["distance6"] = df2['acousticness']*100 - centroid['acousticness']
+    df2["distance7"] = df2['instrumentalness']*100 - centroid['instrumentalness']
+    df2["distance8"] = df2['liveness']*100 - centroid['liveness']
+    df2["distance9"] = df2['valence']*100 - centroid['valence']
+    df2["distance10"] = df2['tempo'] - centroid['tempo']
+    df2["distance11"] = df2['time_signature'] - centroid['time_signature']
+    df2["distance12"] = df2['mode']*100 - centroid['mode']
+    df2["distance13"] = df2['popularity'] - centroid['popularity']
+
+
+    df2["distance1A"] = df2["distance1"] * df2["distance1"]
+    df2["distance2A"] = df2["distance2"] * df2["distance2"]
+    df2["distance3A"] = df2["distance3"] * df2["distance3"]
+    df2["distance4A"] = df2["distance4"] * df2["distance4"]
+    df2["distance5A"] = df2["distance5"] * df2["distance5"]
+    df2["distance6A"] = df2["distance6"] * df2["distance6"]
+    df2["distance7A"] = df2["distance7"] * df2["distance7"]
+    df2["distance8A"] = df2["distance8"] * df2["distance8"]
+    df2["distance9A"] = df2["distance9"] * df2["distance9"]
+    df2["distance10A"] = df2["distance10"] * df2["distance10"]
+    df2["distance11A"] = df2["distance11"] * df2["distance11"]
+    df2["distance12A"] = df2["distance12"] * df2["distance12"]
+    df2["distance13A"] = df2["distance13"] * df2["distance13"]
+
+    df2['distance'] = ( df2["distance1A"] +
+                        df2["distance2A"] +
+                        df2["distance3A"] +
+                        df2["distance4A"] +
+                        df2["distance5A"] +
+                        df2["distance6A"] +
+                        df2["distance7A"] +
+                        df2["distance8A"] +
+                        df2["distance9A"] +
+                        df2["distance10A"] +
+                        df2["distance11A"] +
+                        df2["distance12A"] +
+                        df2["distance13A"])
 
     print('Average distance: ', df2['distance'].mean())
 
     df2['new_id'] = 'spotify:track:' + df2['id']
-    df4 = df2.sort_values(by=['distance'], ascending=True)
-    print( df4['distance'].tolist())
-    if top and len(df4) >= top:
-        return df4['new_id'].tolist()[:top]
+    tracks = __get_tracks_from_dataframe(df2)
+
+    if top and len(tracks) >= top:
+        return tracks[:top]
     else:
-        return df4['new_id'].tolist()
+        return tracks
+
+def __get_tracks_from_dataframe(df):
+    df1 = df.sort_values(by=['distance', 'popularity'], ascending=True)
+    records = pd.DataFrame(df1, columns=['new_id', 'name', 'popularity'])
+    records.columns = ['id', 'name', 'popularity']
+    return list(records.itertuples(index=False, name='Track'))
 
 def publish_tracks(playlist_id, new_tracks, suggested_tracks):
     __tracks = []
@@ -197,11 +231,11 @@ def publish_tracks(playlist_id, new_tracks, suggested_tracks):
             print(r)
 
     for t in new_tracks:
-        if not t in suggested_tracks:
-            __tracks.append(t)
+        if not t.name in suggested_tracks:
+            __tracks.append(t.id)
+            suggested_tracks.add(t.name)
         if len(__tracks) == 100:
             __publish()
-            suggested_tracks.update([track.id for track in __tracks])
             __tracks.clear()
     __publish()
     return suggested_tracks

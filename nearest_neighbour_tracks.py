@@ -21,7 +21,7 @@ if  '__main__' == __name__:
 
     # keep list of suggested tracks' id
     for t in _tracks:
-        _suggested_tracks.update(t.id)
+        _suggested_tracks.update(t.name)
 
     # find the centroid
     _liked_songs_df = get_audio_analysis_of_all_tracks_as_dataframe(tracks=[t.id for t in _tracks])
@@ -48,6 +48,7 @@ if  '__main__' == __name__:
                 #finalDf = pd.concat(__dfs)
                 #print(finalDf)
                 results = find_nearest_neighbour_tracks(centroid=_likeness_centroid, df11=df, tracks=search_tracks, top=2)
+                print(results)
                 _suggested_tracks = publish_tracks(playlist_id=_playlists[SP_NAME], new_tracks=results, suggested_tracks=_suggested_tracks)
            
 

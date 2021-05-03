@@ -11,7 +11,7 @@ search = "/v1/search"
 add_track_to_playlist = "/v1/playlists/{playlist_id}/tracks"
 recommendation_url = "/v1/recommendations"
 
-os.environ['SPOTIFY_TOKEN'] = ''
+os.environ['SPOTIFY_TOKEN'] = 'BQC8E3Ae5Lgeh9j2nW2rwadLzdtSBBamWKQNxxoAGYGogV-JBERRBz_Gk8J5rmmB59-5rwOigo7wgZNYbnDpOyi77x3US9b9H3fxcPbyZJ9ehc3o8c0AELN9KCHjOngBfVdOUcrOiDfo7HNLJPBpR1OJ_acyAu7j6iJDEDx0nxn9n7IWgmo1rufkNPpySN4po6Qti8ahb0ULz3LsNqR9s1B7GFpEbrMFe5GH3sZc9PdSN2S6h0oxyOFwKiAt-wfQnD_zFA1COeA49WV1sAG-o7svclyeQC_LIhvraRR9'
 
 access_token = "Bearer " + (os.environ['SPOTIFY_TOKEN'])
 spotify_header = {"Content-Type": "application/json",
