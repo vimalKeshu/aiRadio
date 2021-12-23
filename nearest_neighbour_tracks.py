@@ -47,7 +47,7 @@ if  '__main__' == __name__:
                 print('Suggested the songs for gener, {0}'.format(gener))
                 #finalDf = pd.concat(__dfs)
                 #print(finalDf)
-                results = find_nearest_neighbour_tracks(centroid=_likeness_centroid, df11=df, tracks=search_tracks, top=2)
+                results = find_nearest_neighbour_tracks(centroid=_likeness_centroid, df11=df, tracks=search_tracks, top=20)
                 print(results)
                 _suggested_tracks = publish_tracks(playlist_id=_playlists[SP_NAME], new_tracks=results, suggested_tracks=_suggested_tracks)
            

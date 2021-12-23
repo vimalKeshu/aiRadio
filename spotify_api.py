@@ -11,8 +11,7 @@ search = "/v1/search"
 add_track_to_playlist = "/v1/playlists/{playlist_id}/tracks"
 recommendation_url = "/v1/recommendations"
 
-os.environ['SPOTIFY_TOKEN'] = 'BQC8E3Ae5Lgeh9j2nW2rwadLzdtSBBamWKQNxxoAGYGogV-JBERRBz_Gk8J5rmmB59-5rwOigo7wgZNYbnDpOyi77x3US9b9H3fxcPbyZJ9ehc3o8c0AELN9KCHjOngBfVdOUcrOiDfo7HNLJPBpR1OJ_acyAu7j6iJDEDx0nxn9n7IWgmo1rufkNPpySN4po6Qti8ahb0ULz3LsNqR9s1B7GFpEbrMFe5GH3sZc9PdSN2S6h0oxyOFwKiAt-wfQnD_zFA1COeA49WV1sAG-o7svclyeQC_LIhvraRR9'
-
+os.environ['SPOTIFY_TOKEN'] = 'BQC2qKSJThPFrr7qJjjOq9wuo7gjprnVgu0du6SJcfLjjrpRvx3photkWxRiCLreVXwX4DU_GoBKvb5rsKD96CdGoFW4Q87XsS31V4E46_tnXKhw05A9R8X5tpWmnyRA2PbBJY4pB_P7-9qYG2QRgDZt2SsClzI1tpQKKbS48wg_J11gs7tp2duPSao8X2KiLcmLbKDISmb49wq7I26m0BH38E06vG_jKcDYIKGO7Wbp_yxoPoVdvU7AqxA4O-yI88EXQBlTKNkPNz-VeZ67Kge8H6tOZqQFIl3ob31Q'
 access_token = "Bearer " + (os.environ['SPOTIFY_TOKEN'])
 spotify_header = {"Content-Type": "application/json",
                   "Accept": "application/json",

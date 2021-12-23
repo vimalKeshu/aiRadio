@@ -7,8 +7,7 @@ cols = ['id','danceability','energy', 'key', 'loudness', 'speechiness', 'acousti
         'liveness','valence', 'tempo', 'time_signature', 'mode']
         
 FP_NAME = "My_Songs"
-#FP_NAME = "Sid_PL"
-SP_NAME = "Vimal_PL"
+SP_NAME = "Vimal_PL1"
 
 Playlist = namedtuple('Playlist', ['id', 'name', 'total'])
 Track = namedtuple('Track', ['id', 'name', 'popularity'])
@@ -142,8 +141,8 @@ def find_nearest_neighbour_tracks(centroid, df11, tracks, top=None, d=1.000):
     + df2['valence']*100 \
     + df2['tempo'] \
     + df2['time_signature'] \
-    + df2["mode"]*100 \
-    + df2["popularity"]), 3)
+    + df2["mode"]*100), 3)
+    #+ df2["popularity"]), 3)
     ##+ df2["duration_ms"]), 3)    
 
     df2['distance'] = round(abs(df2['centroid']-df2['location']),3)
