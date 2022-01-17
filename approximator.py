@@ -24,10 +24,13 @@ class ApproximatorDNN(nn.Module):
 
 class Approximator(object):
 
-    def __init__(self, input_size, output_size=2):
+    def __init__(self, input_size, output_size=2, path=None):
         self.model = ApproximatorDNN(input_size=input_size, output_size=output_size).double().to(device)
         self.criterion = nn.SmoothL1Loss()
         self.optimizer = optim.RMSprop(self.model.parameters())
+        self.epoch = 1
+        if path:
+            self.load(path=path)
 
     def train(self, x, y):
         x = torch.from_numpy(x)
@@ -38,8 +41,8 @@ class Approximator(object):
         x = self.model(x)
         # feed backward
         self.optimizer.zero_grad()
-        loss = self.criterion(x, y)
-        loss.backward()
+        self.loss = self.criterion(x, y)
+        self.loss.backward()
         self.optimizer.step()
 
     def predict(self, x):
@@ -52,8 +55,18 @@ class Approximator(object):
             #x = x.numpy()
         return x
 
-    def load(path):
-        pass
+    def load(self, path) -> None:
+        checkpoint = torch.load(path)
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        self.epoch = checkpoint['epoch']
+        self.loss = checkpoint['loss']
+        self.model.train()
 
-    def store(path):
-        pass
+    def save(self, path) -> None:
+        torch.save({
+        'epoch': self.epoch,
+        'model_state_dict': self.model.state_dict(),
+        'optimizer_state_dict': self.optimizer.state_dict(),
+        'loss': self.loss
+        }, path)

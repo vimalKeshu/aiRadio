@@ -40,6 +40,14 @@ def get_user_gener_tracks_from_json(tracks_by_gener_json):
             __tracks.add(Track(item['id'], item['name'], item['popularity']))
     return __tracks
 
+def get_user_artists_from_json(track_json)-> set:
+    __artists = set()
+    for track in track_json['items']:
+        if 'artists' in track:
+            for artist in track['artists']:
+                __artists.add(artist['id'])
+    return __artists
+
 def search_tracks_of_gener(gener_type):
     
     def __get_next_url(tjson):
