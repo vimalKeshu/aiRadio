@@ -50,7 +50,7 @@ class Approximator(object):
             x = torch.from_numpy(x)
             x = x.to(device)
             x = self.model(x)
-            print(x.numpy())
+            #print(x.numpy())
             x = torch.max(x, 1)
             #x = x.numpy()
         return x

@@ -1,16 +1,11 @@
 import pandas as pd
 from collections import namedtuple
-from spotify_api import _get, search_tracks_by_gener, get_audio_analysis, add_tracks_to_playlist
+from spotify_api import *
 import math
-
-cols = ['id','danceability','energy', 'key', 'loudness', 'speechiness', 'acousticness', 'instrumentalness',
-        'liveness','valence', 'tempo', 'time_signature', 'mode']
         
-FP_NAME = "My_Songs"
-SP_NAME = "Vimal_PL1"
-
 Playlist = namedtuple('Playlist', ['id', 'name', 'total'])
 Track = namedtuple('Track', ['id', 'name', 'popularity'])
+DEFAULT_GENRE = "POP"
 
 def get_playlists_from_json(play_list_json):
     __playlists = {}
@@ -40,8 +35,8 @@ def get_user_gener_tracks_from_json(tracks_by_gener_json):
             __tracks.add(Track(item['id'], item['name'], item['popularity']))
     return __tracks
 
-def get_user_artists_from_json(track_json)-> set:
-    __artists = set()
+def get_user_artists_from_json(track_json)-> dict:
+    __artists = dict()
     for track in track_json['items']:
         if 'artists' in track:
             for artist in track['artists']:
@@ -67,6 +62,35 @@ def search_tracks_of_gener(gener_type):
        __next_url = __get_next_url(tracks_by_gener_json)
 
     return __all_tracks
+
+def search_tracks_by_spotify_recommendation(tracks):
+    #print(tracks)
+    __recommendate_songs:list = []
+    for track in tracks['items']:
+        #print(track)
+        __artists=[]
+        __tracks=[track['track']['id']]
+        __geners=[DEFAULT_GENRE]
+        for artist in track['track']['artists']:
+            #print(artist)
+            __artists.append(artist['id'])
+            if 'genres' in artist:
+                for genre in artist['genres']:
+                    __geners.append(genre)
+        # print(__artists)
+        # print(__tracks)
+        # print(__geners)
+        __track_json = get_recommended_tracks(
+            seed_artists=__artists,
+            seed_genres=__geners,
+            seed_tracks=__tracks,
+            limit=5)
+        #print('recommended', __track_json)
+        for t in __track_json['tracks']:
+            #if track['is_playable']:
+            __recommendate_songs.append(t['id'])
+    return __recommendate_songs
+            
 
 def get_centroid_of_audio_features(df11, tracks):
     df22 = pd.DataFrame(tracks)
@@ -246,3 +270,21 @@ def publish_tracks(playlist_id, new_tracks, suggested_tracks):
             __tracks.clear()
     __publish()
     return suggested_tracks
+
+def publish_tracks_by_id(playlist_id, new_tracks):
+    __tracks = []
+
+    def __publish():
+        if not __tracks or len(__tracks) ==0:
+            print('There are no tracks suggested.')
+        else:
+            r = add_tracks_to_playlist(playlist_id, __tracks)
+            print(r)
+
+    for t in new_tracks:
+        __tracks.append(t)
+        if len(__tracks) == 50:
+            __publish()
+            __tracks.clear()
+    __publish()
+

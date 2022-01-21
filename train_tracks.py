@@ -21,12 +21,18 @@ _likeness_centroid_per_feature = {}
 cols = ['id','danceability','energy', 'key', 'loudness', 'speechiness', 'acousticness', 'instrumentalness',
         'liveness','valence', 'tempo', 'time_signature', 'mode', 'duration_ms' ]
 
-def train_model(path):
+
+def predict(path):
     _playlists = get_playlists_from_json(get_user_playlists())
     track_json = get_playlist_tracks(_playlists[FP_NAME])
     _tracks = get_tracks_from_json(track_json=track_json)
     _artists = get_user_artists_from_json(track_json=track_json)
+    pass
 
+def train_model(path):
+    
+    
+    
     
     _liked_songs_df = get_audio_analysis_of_all_tracks_as_dataframe(tracks=[t.id for t in _tracks])    
     _liked_songs_df[cols].to_csv(path, index=False)
