@@ -19,16 +19,18 @@ def get_audio_analysis(tracks):
             params={"ids": ",".join(tracks)},
             headers=spotify_header).json()
 
-def get_playlist_tracks(playlist_id):
+def get_playlist_tracks(playlist_id, limit=50):
     url = spotify_url + playlist_tracks.format(playlist_id=playlist_id)
     return requests.get(url=url,
-            params={"fields": "items(track(id,name,popularity,duration_ms,artists(id))),next"},
+            params={"fields": "items(track(id,name,popularity,duration_ms,artists(id))),next",
+                    "limit": limit},
             headers=spotify_header).json()
 
-def get_playlist_tracks_by_fields(playlist_id, fields):
+def get_playlist_tracks_by_fields(playlist_id, fields, limit=50):
     url = spotify_url + playlist_tracks.format(playlist_id=playlist_id)
     return requests.get(url=url,
-            params={"fields": fields},
+            params={"fields": fields,
+                    "limit": limit},
             headers=spotify_header).json()
 
 

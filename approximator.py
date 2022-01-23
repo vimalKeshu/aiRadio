@@ -20,11 +20,12 @@ class ApproximatorDNN(nn.Module):
         x = self.layer_1(x)
         x = F.relu(x)
         x = self.head(x)
+        x = F.log_softmax(x, dim=1)
         return x
 
 class Approximator(object):
 
-    def __init__(self, input_size, output_size=2, path=None):
+    def __init__(self, input_size, output_size=1, path=None):
         self.model = ApproximatorDNN(input_size=input_size, output_size=output_size).double().to(device)
         self.criterion = nn.SmoothL1Loss()
         self.optimizer = optim.RMSprop(self.model.parameters())
@@ -51,8 +52,8 @@ class Approximator(object):
             x = x.to(device)
             x = self.model(x)
             #print(x.numpy())
-            x = torch.max(x, 1)
-            #x = x.numpy()
+            #x = torch.max(x, 1)
+            x = x.numpy()
         return x
 
     def load(self, path) -> None:

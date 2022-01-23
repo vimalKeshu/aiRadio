@@ -1,7 +1,7 @@
 import pandas as pd
 from collections import namedtuple
 from spotify_api import *
-import math
+from spotify_api import _get
         
 Playlist = namedtuple('Playlist', ['id', 'name', 'total'])
 Track = namedtuple('Track', ['id', 'name', 'popularity'])
@@ -9,6 +9,7 @@ DEFAULT_GENRE = "POP"
 
 def get_playlists_from_json(play_list_json):
     __playlists = {}
+    print('play_list_json: ', play_list_json)
     for pl in play_list_json["items"]:
         __playlists[pl['name']] = pl['id']
     return __playlists
@@ -60,6 +61,34 @@ def search_tracks_of_gener(gener_type):
        tracks_by_gener_json =  _get(__next_url)
        __all_tracks.update(get_user_gener_tracks_from_json(tracks_by_gener_json))
        __next_url = __get_next_url(tracks_by_gener_json)
+
+    return __all_tracks
+
+def get_playlist_songs(playlist_id, fields):
+    __all_tracks = set()
+
+    def __get_next_url(tjson):
+        return (tjson['next'] 
+                if tjson['next']
+                else None)
+
+    def __get_tracks_from_json(tjson):
+        __t = set()
+        if 'items' in tjson:
+            for track in tjson['items']:
+                __t.add(track['track']['id'])
+        return __t
+
+    __tracks = get_playlist_tracks_by_fields(playlist_id=playlist_id, fields=fields)
+    print('__tracks: ',__tracks)
+    __all_tracks.update(__get_tracks_from_json(__tracks))
+    __next_url = __get_next_url(__tracks)
+    print('__next_url: ',__next_url)
+
+    while(__next_url):
+        tracks_by_json =  _get(__next_url)
+        __all_tracks.update(__get_tracks_from_json(tracks_by_json))
+        __next_url = __get_next_url(tracks_by_json)
 
     return __all_tracks
 
