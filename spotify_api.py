@@ -33,7 +33,6 @@ def get_playlist_tracks_by_fields(playlist_id, fields, limit=50):
                     "limit": limit},
             headers=spotify_header).json()
 
-
 def get_user_top_charts(type='artists'):
     url = spotify_url + top_artists_tracks.format(type=type)
     return requests.get(url=url,
@@ -60,10 +59,18 @@ def get_recommended_tracks(seed_artists:list, seed_genres:list, seed_tracks:list
         raise Exception("Please provide the seed genres upto max 5.")
     if not seed_tracks or len(seed_tracks) > 5:
         raise Exception("Please provide the seed tracks upto max 5.")
+    print('seed_genres',seed_genres)
     url = spotify_url + recommendation
     r = requests.get(url=url,
            params={"seed_artists": ",".join(seed_artists),
            "seed_genres": ",".join(seed_genres),
            "seed_tracks": ",".join(seed_tracks)},
+           headers=spotify_header)
+    return r.json()
+
+def get_artists_genres(artists_list):
+    url = spotify_url + artists
+    r = requests.get(url=url,
+           params={"ids": ",".join(artists_list)},
            headers=spotify_header)
     return r.json()

@@ -43,6 +43,7 @@ class Approximator(object):
         # feed backward
         self.optimizer.zero_grad()
         self.loss = self.criterion(x, y)
+
         self.loss.backward()
         self.optimizer.step()
 

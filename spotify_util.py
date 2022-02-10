@@ -99,25 +99,47 @@ def search_tracks_by_spotify_recommendation(tracks):
         #print(track)
         __artists=[]
         __tracks=[track['track']['id']]
-        __geners=[DEFAULT_GENRE]
+        __genres=set()
+        
         for artist in track['track']['artists']:
-            #print(artist)
             __artists.append(artist['id'])
-            if 'genres' in artist:
-                for genre in artist['genres']:
-                    __geners.append(genre)
-        # print(__artists)
-        # print(__tracks)
-        # print(__geners)
-        __track_json = get_recommended_tracks(
-            seed_artists=__artists,
-            seed_genres=__geners,
-            seed_tracks=__tracks,
-            limit=5)
-        #print('recommended', __track_json)
-        for t in __track_json['tracks']:
-            #if track['is_playable']:
-            __recommendate_songs.append(t['id'])
+
+        __artists_details = get_artists_genres(__artists)
+        for at in __artists_details['artists']:
+            for g in at['genres']:
+                if not len(g.split(' ')) > 1:
+                    __genres.add(g)
+
+        if not __genres:
+            __genres.update([DEFAULT_GENRE])
+
+        #print('all genres: ',__genres)
+        # ToDo: choose based on common genres among artists.
+        if len(__genres) > 5:
+            __genres:set = __genres[:5]
+
+        print('artists',__artists)
+        print('tracks',__tracks)
+        print('genres: ',__genres)
+        cnt=0
+        flag=True
+        while(cnt < 2 and flag):
+            try:
+                __track_json = get_recommended_tracks(
+                    seed_artists=__artists,
+                    seed_genres=list(__genres),
+                    seed_tracks=__tracks,
+                    limit=5)
+
+                print('recommended', __track_json)
+                for t in __track_json['tracks']:
+                    #if track['is_playable']:
+                    __recommendate_songs.append(t['id'])
+                flag=False
+            except:
+                cnt = cnt + 1
+                __genres = [DEFAULT_GENRE]
+
     return __recommendate_songs
             
 

@@ -9,8 +9,9 @@ top_artists_tracks = "/v1/me/top/{type}"
 search = "/v1/search"
 add_track_to_playlist = "/v1/playlists/{playlist_id}/tracks"
 recommendation = "/v1/recommendations"
+artists = "/v1/artists"
 
-os.environ['SPOTIFY_TOKEN'] = 'BQD75fdzAtcNctP2NyiHObLE8QF_12qS9F7JDSSlSWsGGaK_Dv0SxoVdmYL9APCDwwtZfEXVDc4oYA6ZQ19jGY-aAF6ADj7DtSPPTKV5n4J7k7hqcsGRjrqUMB3Ze-5RZh_5cbbEevMszDZiaPD_J6yoDEjx6GjCpS28I719fGDM18RyPQMYSL2ww46597_fLZol5FYQUdyKNS_QearJEo6YqnvVlS3EYHHVR6qg061p5ufYbKnmkxTyJrow1UKPrl1158PDIcBxo6sS4d4UcwwRUucem_fug5By7-Ar'
+os.environ['SPOTIFY_TOKEN'] = 'BQCqnG-yJLinuM15qseuOjj3qrhBUejA4p8eylCyQWfHVK1k5yZFoBWByDc3Z938C8dKPKXF63_zYayEjxUY4zPysg_xgL-TxaEVoresbduBDzBsaw3BxlEUNHGNb_ReAFfY5QvIRRh_dUo_uEs_RAgb5tuFujJWDwJuAwe6u0x8KwGp-8oPVzdoE894ERj4GIh_jdTlwKC0QnPzPxPMqTZ9dp831XSVZ-8s_WAwNTLSEhaOXw7em7ABKZdKs9iRRoiAsLbyk7M6MzA1Xx-Pj96dyrL3N3XnXc4seI4n'
 access_token = "Bearer " + (os.environ['SPOTIFY_TOKEN'])
 spotify_header = {"Content-Type": "application/json",
                   "Accept": "application/json",

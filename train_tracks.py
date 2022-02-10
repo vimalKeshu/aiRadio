@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 
 from approximator import *
+from approximator_ml import ApproximatorML
 from spotify_util import *
 from spotify_api import * 
 from predict_tracks import predict
@@ -54,11 +55,11 @@ def train_model(liking_songs_path:str,
 
     _liked_songs_df = pd.read_csv(liking_songs_path, index_col=columns[0])
     _liked_songs_df[LABEL_COLUMN_NAME] = LIKE_SONG
-    print(_liked_songs_df.head)
+    #print(_liked_songs_df.head)
 
     _not_liked_songs_df = pd.read_csv(not_liking_songs_path, index_col=columns[0])
     _not_liked_songs_df[LABEL_COLUMN_NAME] = NOT_LIKE_SONG
-    print(_not_liked_songs_df.head)
+    #print(_not_liked_songs_df.head)
 
     columns.append(LABEL_COLUMN_NAME)
 
@@ -69,27 +70,26 @@ def train_model(liking_songs_path:str,
     songs_np: np.ndarray = songs_df.to_numpy(dtype=np.float64, copy=False)
     np.random.shuffle(songs_np)
     np.random.shuffle(songs_np)
-    print(songs_np)
 
     samples = songs_np[:,:-1]
     print(samples)
     labels = songs_np[:,-1:]
     print(labels)
 
-    approximator: Approximator
-    if os.path.exists(model_path):
-        print("load the model")
-        approximator = Approximator(input_size=len(cols)-1, output_size=1, path=model_path)
-    else:
-        approximator = Approximator(input_size=len(cols)-1, output_size=1)
+    approximator: ApproximatorML = ApproximatorML(path=model_path)
+    approximator.train(X=samples, y=np.ravel(labels))
+    approximator.save()
 
-    approximator.train(x=samples, y=labels)
-    approximator.save(model_path)
+def anaylze_model_behavior(model_path:str):
+    approximator: ApproximatorML = ApproximatorML(path=model_path)
+    approximator.analyze_model_behavior()
 
 if '__main__' == __name__:
     # collect(liking_songs_path=LIKING_SONGS_FILE_NAME, 
     # not_liking_songs_path=NOT_LIKING_SONGS_FILE_NAME)
-    train_model(liking_songs_path=LIKING_SONGS_FILE_NAME, 
-                not_liking_songs_path=NOT_LIKING_SONGS_FILE_NAME,
-                model_path=MODEL_NAME)
-    predict(data_path=NOT_LIKING_SONGS_FILE_NAME, model_path=MODEL_NAME)
+    # train_model(liking_songs_path=LIKING_SONGS_FILE_NAME, 
+    #             not_liking_songs_path=NOT_LIKING_SONGS_FILE_NAME,
+    #             model_path=MODEL_NAME)
+    # songs = predict(data_path=NOT_LIKING_SONGS_FILE_NAME, model_path=MODEL_NAME)
+    # print(songs)
+    anaylze_model_behavior(model_path=MODEL_NAME)

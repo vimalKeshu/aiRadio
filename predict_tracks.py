@@ -1,7 +1,7 @@
 import os
-from pickle import NONE 
 
-from approximator import *
+from approximator_ml import ApproximatorML
+import setup_token
 from spotify_util import *
 from spotify_api import * 
 import pandas as pd
@@ -20,7 +20,7 @@ def collect(path):
     _suggested_songs_df = get_audio_analysis_of_all_tracks_as_dataframe(tracks=_recommendate_songs)
     _suggested_songs_df[cols].to_csv(path, index=False)
 
-def predict(data_path, model_path):
+def predict(data_path, model_path) -> list:
 
     if not os.path.exists(model_path):
         raise Exception(f"Model doesn't exist at {model_path}")
@@ -30,11 +30,11 @@ def predict(data_path, model_path):
     df = pd.read_csv(data_path)
     sid:list = df[cols[0]].to_list()
     samples = df[cols[1:]].to_numpy(dtype = np.float64, copy = False)
-    #print(samples)
-    approximator = Approximator(input_size=len(cols)-1, output_size=1, path=model_path)
-    predicted_labels = approximator.predict(x=samples)
+    print(samples)
+    approximator = ApproximatorML(path=model_path)
+    predicted_labels = approximator.predict(X=samples)
     #print(sid)
-    print(predicted_labels)
+    print('predicted_labels:',predicted_labels)
     if len(predicted_labels) != len(sid):
         raise Exception("Input and predicted output size not matching")
 
@@ -52,6 +52,6 @@ def publish_recommended_songs(new_tracks, playlist_id=None):
     publish_tracks_by_id(playlist_id=playlist_id, new_tracks=new_tracks)
 
 if '__main__' == __name__:
-    collect(path = OTHER_SONGS_FILE_NAME)
+    #collect(path = OTHER_SONGS_FILE_NAME)
     new_tracks = predict(data_path=OTHER_SONGS_FILE_NAME, model_path=MODEL_NAME)
     publish_recommended_songs(new_tracks)
